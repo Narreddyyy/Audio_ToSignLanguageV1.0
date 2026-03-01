@@ -33,3 +33,5 @@ tzdata==2025.3
 transformers
 torch
 pillow
+pypdf>=3.0
+python-docx

@@ -8,47 +8,104 @@
 
 <div class="split-screen">
     <div class="input-section">
-        <h2 style="color: #ffc107;">Live Speech to Sign</h2>
-        
-        <div class="controls">
-            <label for="language-select" style="color: #aaa; font-size: 12px;">Select Language:</label>
-            <select id="language-select" style="width: 100%;">
-                <optgroup label="Indian Languages">
-                    <option value="hi-IN" selected>Hindi (India)</option>
-                    <option value="ta-IN">Tamil (India)</option>
-                    <option value="te-IN">Telugu (India)</option>
-                    <option value="kn-IN">Kannada (India)</option>
-                    <option value="ml-IN">Malayalam (India)</option>
-                    <option value="mr-IN">Marathi (India)</option>
-                    <option value="gu-IN">Gujarati (India)</option>
-                    <option value="bn-IN">Bengali (India)</option>
-                </optgroup>
-                <optgroup label="Global Languages">
-                    <option value="en-US">English (US)</option>
-                    <option value="fr-FR">French (France)</option>
-                    <option value="es-ES">Spanish (Spain)</option>
-                </optgroup>
-            </select>
 
-            <button id="start-btn" class="btn-mic" onclick="toggleRecording()">
-                🎤 Start Live Listening
-            </button>
+        <!-- ── TAB NAVIGATION ───────────────────────────────── -->
+        <div class="tab-bar">
+            <button id="tab-mic"  class="tab-btn active" onclick="switchTab('mic')">🎤 Live Speech</button>
+            <button id="tab-text" class="tab-btn"        onclick="switchTab('text')">✏️ Type Text</button>
+            <button id="tab-doc"  class="tab-btn"        onclick="switchTab('doc')">📄 Document</button>
+        </div>
 
-            <div class="control-row">
-                <button onclick="playVideo()" class="btn-control play-btn" title="Resume Animation">
-                    ▶ Play
+        <!-- ── TAB 1: LIVE SPEECH ───────────────────────────── -->
+        <div id="panel-mic" class="tab-panel">
+            <div class="controls">
+                <label for="language-select" style="color:#aaa;font-size:12px;">Select Language:</label>
+                <select id="language-select" style="width:100%;">
+                    <optgroup label="Indian Languages">
+                        <option value="hi-IN" selected>Hindi (India)</option>
+                        <option value="ta-IN">Tamil (India)</option>
+                        <option value="te-IN">Telugu (India)</option>
+                        <option value="kn-IN">Kannada (India)</option>
+                        <option value="ml-IN">Malayalam (India)</option>
+                        <option value="mr-IN">Marathi (India)</option>
+                        <option value="gu-IN">Gujarati (India)</option>
+                        <option value="bn-IN">Bengali (India)</option>
+                    </optgroup>
+                    <optgroup label="Global Languages">
+                        <option value="en-US">English (US)</option>
+                        <option value="fr-FR">French (France)</option>
+                        <option value="es-ES">Spanish (Spain)</option>
+                    </optgroup>
+                </select>
+
+                <button id="start-btn" class="btn-mic" onclick="toggleRecording()">
+                    🎤 Start Live Listening
                 </button>
-                <button onclick="pauseVideo()" class="btn-control pause-btn" title="Pause Animation">
-                    ⏸ Pause
-                </button>
-                <button onclick="stopVideo()" class="btn-control stop-btn" title="Stop & Clear Queue">
-                    ⏹ Stop
-                </button>
+
+                <div class="control-row">
+                    <button onclick="playVideo()"  class="btn-control play-btn"  title="Resume Animation">▶ Play</button>
+                    <button onclick="pauseVideo()" class="btn-control pause-btn" title="Pause Animation">⏸ Pause</button>
+                    <button onclick="stopVideo()"  class="btn-control stop-btn"  title="Stop & Clear Queue">⏹ Stop</button>
+                </div>
+            </div>
+
+            <div class="queue-box heard-box" style="margin-top:15px;">
+                <span class="queue-label">🔴 MIC INPUT (LATEST)</span>
+                <p id="live-text" style="color:#fff;font-style:italic;">...</p>
             </div>
         </div>
 
-        <div class="queue-container">
-            
+        <!-- ── TAB 2: TYPE TEXT ─────────────────────────────── -->
+        <div id="panel-text" class="tab-panel" style="display:none;">
+            <div class="controls">
+                <label style="color:#aaa;font-size:12px;">Type or paste any text:</label>
+                <textarea id="text-input" rows="5"
+                    placeholder="e.g. Hello, how are you?"
+                    style="width:100%;background:#3a3a3a;color:#fff;border:1px solid #ffc107;border-radius:6px;padding:10px;font-size:14px;resize:vertical;margin-top:6px;box-sizing:border-box;"></textarea>
+
+                <div id="text-error" class="error-msg" style="display:none;"></div>
+
+                <button class="btn-mic" onclick="submitText()" style="margin-top:10px;">
+                    ✏️ Sign It
+                </button>
+
+                <div class="control-row" style="margin-top:10px;">
+                    <button onclick="playVideo()"  class="btn-control play-btn">▶ Play</button>
+                    <button onclick="pauseVideo()" class="btn-control pause-btn">⏸ Pause</button>
+                    <button onclick="stopVideo()"  class="btn-control stop-btn">⏹ Stop</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TAB 3: DOCUMENT UPLOAD ───────────────────────── -->
+        <div id="panel-doc" class="tab-panel" style="display:none;">
+            <div class="controls">
+                <label style="color:#aaa;font-size:12px;">Upload a document (.txt, .pdf, .docx):</label>
+
+                <div class="drop-zone" id="drop-zone" onclick="document.getElementById('doc-input').click()">
+                    <div class="drop-zone-icon">📄</div>
+                    <p id="drop-zone-text">Click to browse or drag & drop a file here</p>
+                    <p style="font-size:11px;color:#888;margin:0;">Supports .txt · .pdf · .docx — max 500 words</p>
+                    <input type="file" id="doc-input" accept=".txt,.pdf,.docx"
+                           style="display:none;" onchange="handleFileSelect(this)">
+                </div>
+
+                <div id="doc-error" class="error-msg" style="display:none;"></div>
+
+                <button id="upload-btn" class="btn-mic" onclick="submitDocument()" style="margin-top:10px;" disabled>
+                    📄 Sign Document
+                </button>
+
+                <div class="control-row" style="margin-top:10px;">
+                    <button onclick="playVideo()"  class="btn-control play-btn">▶ Play</button>
+                    <button onclick="pauseVideo()" class="btn-control pause-btn">⏸ Pause</button>
+                    <button onclick="stopVideo()"  class="btn-control stop-btn">⏹ Stop</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── SHARED QUEUE DISPLAY ─────────────────────────── -->
+        <div class="queue-container" style="margin-top:20px;">
             <div class="queue-box current-box">
                 <span class="queue-label">▶️ NOW SIGNING</span>
                 <p id="current-sentence-text">Waiting for input...</p>
@@ -57,68 +114,68 @@
 
             <div class="queue-box upcoming-box">
                 <span class="queue-label">⏳ UP NEXT (BUFFER)</span>
-                <ul id="upcoming-list">
-                    </ul>
-            </div>
-
-            <div class="queue-box heard-box">
-                <span class="queue-label">🔴 MIC INPUT (LATEST)</span>
-                <p id="live-text" style="color: #fff; font-style: italic;">...</p>
+                <ul id="upcoming-list"></ul>
             </div>
         </div>
-    </div> 
+
+    </div> <!-- /input-section -->
 
     <div class="display-section">
         <div class="avatar-container">
-            <video id="sign-video" width="100%" height="auto" playsinline style="border: 2px solid #ffc107; border-radius: 10px;">
+            <video id="sign-video" width="100%" height="auto" playsinline
+                   style="border:2px solid #ffc107;border-radius:10px;">
                 <source src="" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
         </div>
-        
         <div id="main-word-display" class="word-display">READY</div>
     </div>
 </div>
 
 <script>
-    // --- INITIALIZATION ---
+    // ── INIT ────────────────────────────────────────────────────
     $(document).ready(function() {
         $('#language-select').select2({ placeholder: "Search language...", allowClear: false });
     });
 
-    // --- VARIABLES ---
+    function switchTab(name) {
+        ['mic','text','doc'].forEach(t => {
+            document.getElementById('panel-' + t).style.display = (t === name) ? '' : 'none';
+            document.getElementById('tab-'   + t).classList.toggle('active', t === name);
+        });
+    }
+
+    // ── VARIABLES ───────────────────────────────────────────────
     let recognition;
     let isRecording = false;
-    let isPlaying = false; 
-    let isPaused = false; 
-    
-    // THE QUEUE SYSTEM
-    let playbackQueue = []; 
+    let isPlaying   = false;
+    let isPaused    = false;
+    let playbackQueue = [];
 
-    const videoPlayer = document.getElementById('sign-video');
-    const mainWordDisplay = document.getElementById('main-word-display');
+    const videoPlayer         = document.getElementById('sign-video');
+    const mainWordDisplay     = document.getElementById('main-word-display');
     const currentSentenceText = document.getElementById('current-sentence-text');
-    const currentWordBadge = document.getElementById('current-word-badge');
-    const upcomingList = document.getElementById('upcoming-list');
-    const liveText = document.getElementById('live-text');
+    const currentWordBadge    = document.getElementById('current-word-badge');
+    const upcomingList        = document.getElementById('upcoming-list');
+    const liveText            = document.getElementById('live-text');
 
-    // --- SPEECH RECOGNITION ---
+    // ── SPEECH RECOGNITION ──────────────────────────────────────
     if ('webkitSpeechRecognition' in window) {
         recognition = new webkitSpeechRecognition();
-        recognition.continuous = true; 
-        recognition.interimResults = false; 
-        recognition.lang = 'hi-IN'; 
+        recognition.continuous     = true;
+        recognition.interimResults = false;
+        recognition.lang           = 'hi-IN';
 
         recognition.onresult = function(event) {
-            const lastIndex = event.results.length - 1;
+            const lastIndex  = event.results.length - 1;
             const transcript = event.results[lastIndex][0].transcript;
             liveText.innerText = transcript;
-            processSentence(transcript);
+            processSentence(transcript, "{% url 'animation' %}");
         };
-
         recognition.onend = function() { if (isRecording) recognition.start(); };
     } else {
-        alert("Use Chrome for Speech API.");
+        document.getElementById('start-btn').disabled = true;
+        document.getElementById('start-btn').title    = "Use Chrome for Speech API.";
     }
 
     function toggleRecording() {
@@ -128,7 +185,7 @@
             document.getElementById('start-btn').classList.remove("recording-active");
             isRecording = false;
         } else {
-            recognition.lang = $('#language-select').val(); 
+            recognition.lang = $('#language-select').val();
             recognition.start();
             document.getElementById('start-btn').innerText = "⏹ Stop Listening";
             document.getElementById('start-btn').classList.add("recording-active");
@@ -136,247 +193,284 @@
         }
     }
 
-    // --- BACKEND COMMUNICATION ---
-    function processSentence(text) {
+    // ── TEXT INPUT ──────────────────────────────────────────────
+    function submitText() {
+        const text = document.getElementById('text-input').value.trim();
+        const errorBox = document.getElementById('text-error');
+        errorBox.style.display = 'none';
+
+        if (!text) {
+            showError(errorBox, 'Please enter some text first.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('text', text);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        addGhostToQueue(text);
+
+        fetch("{% url 'process_text' %}", {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) { showError(errorBox, data.error); removeGhost(text); return; }
+            finalizeQueueItem(text, data.words, data.text);
+            if (!isPlaying && !isPaused) playNextInQueue();
+        })
+        .catch(() => { showError(errorBox, 'Server error. Please try again.'); removeGhost(text); });
+    }
+
+    // ── DOCUMENT UPLOAD ─────────────────────────────────────────
+    let selectedFile = null;
+
+    function handleFileSelect(input) {
+        selectedFile = input.files[0];
+        if (selectedFile) {
+            document.getElementById('drop-zone-text').innerText = '📎 ' + selectedFile.name;
+            document.getElementById('upload-btn').disabled = false;
+        }
+    }
+
+    // Drag-and-drop support
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            selectedFile = file;
+            document.getElementById('drop-zone-text').innerText = '📎 ' + file.name;
+            document.getElementById('upload-btn').disabled = false;
+        }
+    });
+
+    function submitDocument() {
+        const errorBox = document.getElementById('doc-error');
+        errorBox.style.display = 'none';
+
+        if (!selectedFile) {
+            showError(errorBox, 'Please select a file first.');
+            return;
+        }
+
+        const label = selectedFile.name;
+        const formData = new FormData();
+        formData.append('document', selectedFile);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        document.getElementById('upload-btn').innerText  = '⏳ Uploading...';
+        document.getElementById('upload-btn').disabled   = true;
+        addGhostToQueue(label);
+
+        fetch("{% url 'upload_document' %}", {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('upload-btn').innerText = '📄 Sign Document';
+            document.getElementById('upload-btn').disabled  = false;
+            if (data.error) { showError(errorBox, data.error); removeGhost(label); return; }
+            finalizeQueueItem(label, data.words, data.text);
+            if (!isPlaying && !isPaused) playNextInQueue();
+        })
+        .catch(() => {
+            document.getElementById('upload-btn').innerText = '📄 Sign Document';
+            document.getElementById('upload-btn').disabled  = false;
+            showError(errorBox, 'Upload failed. Please try again.');
+            removeGhost(label);
+        });
+    }
+
+    // ── BACKEND COMMUNICATION (SPEECH) ──────────────────────────
+    function processSentence(text, url) {
         const formData = new FormData();
         formData.append('sen', text);
         formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
         addGhostToQueue(text);
 
-        fetch("{% url 'animation' %}", {
+        fetch(url, {
             method: 'POST',
             body: formData,
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
             finalizeQueueItem(text, data.words, data.text);
-            if (!isPlaying && !isPaused) {
-                playNextInQueue();
-            }
+            if (!isPlaying && !isPaused) playNextInQueue();
         })
-        .catch(error => console.error('Error:', error));
+        .catch(e => console.error('Error:', e));
     }
 
-    // --- QUEUE UI LOGIC ---
+    // ── QUEUE HELPERS ───────────────────────────────────────────
+    function ghostId(text) { return "q-" + text.replace(/\s/g,'').substring(0,10); }
+
     function addGhostToQueue(originalText) {
         const li = document.createElement('li');
-        li.innerText = originalText + " (Translating...)";
-        li.id = "q-" + originalText.replace(/\s/g, '').substring(0, 10); 
+        li.innerText = originalText + " (Processing...)";
+        li.id = ghostId(originalText);
         li.style.color = "#aaa";
         upcomingList.appendChild(li);
     }
 
+    function removeGhost(originalText) {
+        const el = document.getElementById(ghostId(originalText));
+        if (el) el.remove();
+    }
+
     function finalizeQueueItem(originalText, words, translatedText) {
-        const id = "q-" + originalText.replace(/\s/g, '').substring(0, 10);
-        const li = document.getElementById(id);
-        if (li) li.remove(); 
-
-        playbackQueue.push({
-            original: originalText,
-            translated: translatedText,
-            words: words,
-            wordIndex: 0
-        });
-
+        removeGhost(originalText);
+        playbackQueue.push({ original: originalText, translated: translatedText, words: words, wordIndex: 0 });
         updateUpcomingUI();
     }
 
     function updateUpcomingUI() {
         upcomingList.innerHTML = "";
-        const waitingItems = isPlaying ? playbackQueue.slice(1) : playbackQueue;
-
-        waitingItems.forEach(item => {
+        const items = isPlaying ? playbackQueue.slice(1) : playbackQueue;
+        items.forEach(item => {
             const li = document.createElement('li');
-            li.innerHTML = `<strong>${item.original}</strong> <br><span style="font-size:12px; color:#aaa;">${item.translated}</span>`;
+            li.innerHTML = `<strong>${item.original}</strong><br><span style="font-size:12px;color:#aaa;">${item.translated}</span>`;
             upcomingList.appendChild(li);
         });
     }
 
-    // --- PLAYBACK CONTROL FUNCTIONS ---
+    // ── PLAYBACK CONTROLS ───────────────────────────────────────
     function playVideo() {
         isPaused = false;
-        if (videoPlayer.paused && videoPlayer.src) {
-            videoPlayer.play();
-        } else if (!isPlaying && playbackQueue.length > 0) {
-            playNextInQueue();
-        }
+        if (videoPlayer.paused && videoPlayer.src) videoPlayer.play();
+        else if (!isPlaying && playbackQueue.length > 0) playNextInQueue();
     }
 
-    function pauseVideo() {
-        isPaused = true;
-        videoPlayer.pause();
-    }
+    function pauseVideo() { isPaused = true; videoPlayer.pause(); }
 
     function stopVideo() {
-        isPaused = false;
-        isPlaying = false;
-        videoPlayer.pause();
-        videoPlayer.currentTime = 0;
-        videoPlayer.src = "";
+        isPaused = false; isPlaying = false;
+        videoPlayer.pause(); videoPlayer.currentTime = 0; videoPlayer.src = "";
         playbackQueue = [];
         currentSentenceText.innerText = "Idle";
-        currentWordBadge.innerText = "...";
-        mainWordDisplay.innerText = "STOPPED";
+        currentWordBadge.innerText    = "...";
+        mainWordDisplay.innerText     = "STOPPED";
         updateUpcomingUI();
     }
 
-    // --- CORE PLAYBACK ENGINE ---
     function playNextInQueue() {
         if (isPaused) return;
-
         if (playbackQueue.length === 0) {
             isPlaying = false;
             currentSentenceText.innerText = "Idle";
-            currentWordBadge.innerText = "...";
-            mainWordDisplay.innerText = "READY";
+            currentWordBadge.innerText    = "...";
+            mainWordDisplay.innerText     = "READY";
             return;
         }
-
         isPlaying = true;
-        const currentItem = playbackQueue[0]; 
+        const current = playbackQueue[0];
+        currentSentenceText.innerText = current.original;
+        updateUpcomingUI();
 
-        currentSentenceText.innerText = currentItem.original;
-        updateUpcomingUI(); 
-
-        if (currentItem.wordIndex >= currentItem.words.length) {
+        if (current.wordIndex >= current.words.length) {
             playbackQueue.shift();
             playNextInQueue();
             return;
         }
 
-        const word = currentItem.words[currentItem.wordIndex];
+        const word = current.words[current.wordIndex];
+        current.wordIndex++;
         currentWordBadge.innerText = word;
-        mainWordDisplay.innerText = word.toUpperCase();
-        currentItem.wordIndex++; 
+        mainWordDisplay.innerText  = word.toUpperCase();
 
-        videoPlayer.src = "{% static '' %}" + word + ".mp4"; 
-        
-        videoPlayer.play().catch(e => {
-            console.log("Missing/Error for video: " + word);
-            setTimeout(() => playNextInQueue(), 1000);
-        });
+        videoPlayer.src = "{% static '' %}" + word + ".mp4";
+        videoPlayer.play().catch(() => setTimeout(() => playNextInQueue(), 600));
     }
 
-    videoPlayer.onended = function() {
-        playNextInQueue();
-    };
+    videoPlayer.onended = function() { playNextInQueue(); };
+
+    // ── UTILITY ─────────────────────────────────────────────────
+    function showError(el, msg) {
+        el.innerText = '⚠️ ' + msg;
+        el.style.display = 'block';
+    }
 </script>
 
 <style>
-    /* LAYOUT */
-    .split-screen { display: flex; min-height: 85vh; gap: 20px; padding: 30px; }
-    .input-section, .display-section { flex: 1; padding: 25px; background: #2c2c2c; color: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-    
-    /* CONTROLS STYLING */
-    .btn-mic { 
-        background: #ffc107; 
-        color: black; 
-        border: none; 
-        padding: 15px; 
-        width: 100%; 
-        border-radius: 5px; 
-        font-weight: bold; 
-        margin-top: 10px; 
-        cursor: pointer; 
-        font-size: 16px;
-        transition: all 0.3s;
+    /* ── LAYOUT ── */
+    .split-screen { display:flex; min-height:85vh; gap:20px; padding:30px; }
+    .input-section, .display-section { flex:1; padding:25px; background:#2c2c2c; color:white; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,.4); }
+
+    /* ── TABS ── */
+    .tab-bar { display:flex; gap:8px; margin-bottom:18px; }
+    .tab-btn {
+        flex:1; padding:10px 6px; border:1px solid #555; background:#3a3a3a; color:#aaa;
+        border-radius:6px; font-weight:bold; font-size:13px; cursor:pointer; transition:all .2s;
     }
-    .recording-active {
-        background: #ff5722 !important; /* Orange-Red for active recording */
-        color: white !important;
-        animation: pulse 1.5s infinite;
+    .tab-btn:hover { border-color:#ffc107; color:#ffc107; }
+    .tab-btn.active { background:#ffc107; color:#000; border-color:#ffc107; }
+
+    /* ── DROP ZONE ── */
+    .drop-zone {
+        border:2px dashed #ffc107; border-radius:8px; padding:30px 20px;
+        text-align:center; cursor:pointer; margin-top:8px;
+        transition:background .2s;
+    }
+    .drop-zone:hover, .drop-zone.drag-over { background:rgba(255,193,7,.08); }
+    .drop-zone-icon { font-size:36px; margin-bottom:8px; }
+    .drop-zone p { margin:4px 0; color:#ccc; font-size:13px; }
+
+    /* ── ERROR MSG ── */
+    .error-msg {
+        background:rgba(244,67,54,.15); border:1px solid #f44336; border-radius:5px;
+        color:#f44336; padding:8px 12px; font-size:13px; margin-top:8px;
     }
 
-    /* NEW BUTTON ROW STYLES */
-    .control-row {
-        display: flex;
-        gap: 10px;
-        margin-top: 10px;
+    /* ── BUTTONS ── */
+    .btn-mic {
+        background:#ffc107; color:black; border:none; padding:15px;
+        width:100%; border-radius:5px; font-weight:bold; margin-top:10px;
+        cursor:pointer; font-size:16px; transition:all .3s;
     }
+    .btn-mic:disabled { background:#666; color:#aaa; cursor:not-allowed; }
+    .recording-active { background:#ff5722 !important; color:white !important; animation:pulse 1.5s infinite; }
+    .control-row { display:flex; gap:10px; margin-top:10px; }
     .btn-control {
-        flex: 1; /* Equal width */
-        padding: 10px;
-        border-radius: 5px;
-        font-weight: bold;
-        cursor: pointer;
-        border: 1px solid #ffc107;
-        background: transparent;
-        color: #ffc107;
-        transition: all 0.2s;
+        flex:1; padding:10px; border-radius:5px; font-weight:bold;
+        cursor:pointer; border:1px solid #ffc107; background:transparent; color:#ffc107; transition:all .2s;
     }
-    .play-btn:hover {
-        background: #ffc107;
-        color: black;
-    }
-    .pause-btn:hover {
-        background: rgba(255, 193, 7, 0.2);
-    }
-    .stop-btn {
-        border-color: #f44336;
-        color: #f44336;
-    }
-    .stop-btn:hover {
-        background: #f44336;
-        color: white;
-    }
+    .play-btn:hover  { background:#ffc107; color:black; }
+    .pause-btn:hover { background:rgba(255,193,7,.2); }
+    .stop-btn        { border-color:#f44336; color:#f44336; }
+    .stop-btn:hover  { background:#f44336; color:white; }
 
     @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.02); }
-        100% { transform: scale(1); }
+        0%,100% { transform:scale(1); }
+        50%      { transform:scale(1.02); }
     }
 
-    /* QUEUE BOX STYLES */
-    .queue-container { margin-top: 25px; display: flex; flex-direction: column; gap: 15px; }
-    
-    .queue-box {
-        background: #3a3a3a;
-        padding: 15px;
-        border-radius: 8px;
-        border-left: 5px solid #555;
-    }
+    /* ── QUEUE ── */
+    .queue-container { display:flex; flex-direction:column; gap:15px; }
+    .queue-box { background:#3a3a3a; padding:15px; border-radius:8px; border-left:5px solid #555; }
+    .queue-label { font-size:10px; font-weight:bold; letter-spacing:1px; color:#888; text-transform:uppercase; display:block; margin-bottom:5px; }
+    .current-box { border-left-color:#ffc107; background:#3d3522; }
+    .current-box p { font-size:18px; font-weight:bold; margin:0; color:#fff; }
+    .upcoming-box { border-left-color:#2196f3; min-height:80px; }
+    .upcoming-box ul { list-style:none; padding:0; margin:0; }
+    .upcoming-box li { padding:8px 0; border-bottom:1px solid #444; font-size:14px; }
+    .heard-box { border-left-color:#f44336; }
+    .word-badge { display:inline-block; background:#ffc107; color:black; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:12px; margin-top:5px; }
+    .word-display { font-size:40px; text-align:center; margin-top:20px; color:#ffc107; font-weight:bold; }
 
-    .queue-label {
-        font-size: 10px;
-        font-weight: bold;
-        letter-spacing: 1px;
-        color: #888;
-        text-transform: uppercase;
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    /* SPECIFIC BOX COLORS */
-    .current-box { border-left-color: #ffc107; background: #3d3522; }
-    .current-box p { font-size: 18px; font-weight: bold; margin: 0; color: #fff; }
-    
-    .upcoming-box { border-left-color: #2196f3; min-height: 80px; }
-    .upcoming-box ul { list-style: none; padding: 0; margin: 0; }
-    .upcoming-box li { padding: 8px 0; border-bottom: 1px solid #444; font-size: 14px; }
-
-    .heard-box { border-left-color: #f44336; }
-
-    .word-badge {
-        display: inline-block;
-        background: #ffc107;
-        color: black;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-weight: bold;
-        font-size: 12px;
-        margin-top: 5px;
-    }
-
-    .word-display { font-size: 40px; text-align: center; margin-top: 20px; color: #ffc107; font-weight: bold; }
-    
-    /* Select2 Dark Mode Tweaks */
-    .select2-container--default .select2-selection--single { background-color: #444 !important; border: 1px solid #555 !important; height: 40px !important; display: flex !important; align-items: center !important; }
-    .select2-container--default .select2-selection--single .select2-selection__rendered { color: white !important; }
-    .select2-dropdown { background-color: #444 !important; border: 1px solid #555 !important; }
-    .select2-results__option { color: white !important; }
-    .select2-results__option--highlighted { background-color: #ffc107 !important; color: black !important; }
-    .select2-search__field { background-color: #555 !important; color: white !important; }
+    /* ── SELECT2 DARK ── */
+    .select2-container--default .select2-selection--single { background-color:#444 !important; border:1px solid #555 !important; height:40px !important; display:flex !important; align-items:center !important; }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { color:white !important; }
+    .select2-dropdown { background-color:#444 !important; border:1px solid #555 !important; }
+    .select2-results__option { color:white !important; }
+    .select2-results__option--highlighted { background-color:#ffc107 !important; color:black !important; }
+    .select2-search__field { background-color:#555 !important; color:white !important; }
 </style>
 {% endblock %}

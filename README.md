@@ -1,8 +1,8 @@
-# 🗣️ A2SL: Audio to Sign Language Converter
+#  A2SL: Audio to Sign Language Converter
 
 **A real-time accessibility tool that translates spoken language into Indian & American Sign Language (ISL/ASL) using Natural Language Processing.**
 
-## 🚀 Overview
+##  Overview
 Bridging the communication gap for the Deaf and Hard of Hearing community. This application listens to live speech, processes the natural language, and instantly renders the corresponding sign language animations using a dictionary of over 2,000+ real human signs.
 
 ## ✨ Key Features
