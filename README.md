@@ -68,6 +68,7 @@ Note: Ensure your A2SL/settings.py database password matches your local PostgreS
 python manage.py migrate
 python manage.py runserver
 ```
+
 Visit http://127.0.0.1:8000/animation/ to start the tool.
 
 🤝 Contact
